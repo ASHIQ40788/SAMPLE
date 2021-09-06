@@ -1,16 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SnakeLadder
 {
-    class SnakeandLadder
+    public class Player1
     {
         static void Main(string[] args)
         {
-           //WELCOME TO SNAKE AND LADDER
-;        }
+            // one player starting on square one
+            int[] players = {1};
+            while (true)
+            {
+                for (int i = 0; i < players.Length; i++)
+                {
+                    int ns = Turn(i + 1, players[i]);
+                    if (ns == 100)
+                    {
+                        Console.WriteLine("Player {0} wins!", i + 1);
+                        return;
+                    }
+                    players[i] = ns;
+                    Console.WriteLine();
+                }
+            }
+        }
     }
 }
