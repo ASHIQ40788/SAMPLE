@@ -1,86 +1,107 @@
-﻿using System;
+﻿// C# program to find minimum
+// number of dice throws required
+// to reach last cell from first
+// cell of a given snake and ladder board
+using System;
 using System.Collections.Generic;
-
-namespace SnakeAndLadder
+ 
+public class SnakesLadder
 {
-    class Program
+    // An entry in queue used in BFS
+    public class qentry
     {
-        private static Dictionary<int, int> snl = new Dictionary<int, int>() {
-            {4, 14},
-            {9, 31},
-            {17, 7},
-            {20, 38},
-            {28, 84},
-            {40, 59},
-            {51, 67},
-            {54, 34},
-            {62, 19},
-            {63, 81},
-            {64, 60},
-            {71, 91},
-            {87, 24},
-            {93, 73},
-            {95, 75},
-            {99, 78},
-        };
-        private static Random rand = new Random();
-        private const bool sixesThrowAgain = true;
+        public int v;// Vertex number
+        public int dist;// Distance of this vertex from source
+    }
 
-        static int Turn(int player, int square)
+    // This function returns minimum number of dice throws required to Reach last cell from 0'th cell
+    // in a snake and ladder game. move[] is an array of size N where N is no. of cells on board If there
+    //is no snake or ladder from cell i, then move[i] is -1 Otherwise move[i] contains cell to which
+    // snake or ladder at i takes to.
+    static int getMinDiceThrows(int[] move, int n)
+    {
+        int[] visited = new int[n];
+        Queue<qentry> q = new Queue<qentry>();
+        qentry qe = new qentry();
+        qe.v = 0;
+        qe.dist = 0;
+
+        // Mark the node 0 as visited and enqueue it.
+        visited[0] = 1;
+        q.Enqueue(qe);
+
+        // Do a BFS starting from vertex at index 0
+        while (q.Count != 0)
         {
-            while (true)
+            qe = q.Dequeue();
+            int v = qe.v;
+
+            // If front vertex is the destination
+            // vertex, we are done
+            if (v == n - 1)
+                break;
+
+            // Otherwise dequeue the front vertex and
+            // enqueue its adjacent vertices (or cell
+            // numbers reachable through a dice throw)
+            for (int j = v + 1; j <= (v + 6) && j < n; ++j)
             {
-                int roll = rand.Next(1, 6);
-                Console.Write("Player {0}, on square {1}, rolls a {2}", player, square, roll);
-                if (square + roll > 100)
+                // If this cell is already visited, then ignore
+                if (visited[j] == 0)
                 {
-                    Console.WriteLine(" but cannot move.");
+                    // Otherwise calculate its distance and
+                    // mark it as visited
+                    qentry a = new qentry();
+                    a.dist = (qe.dist + 1);
+                    visited[j] = 1;
+
+                    // Check if there a snake or ladder at 'j'
+                    // then tail of snake or top of ladder
+                    // become the adjacent of 'i'
+                    if (move[j] != -1)
+                        a.v = move[j];
+                    else
+                        a.v = j;
+                    q.Enqueue(a);
                 }
-                else
-                {
-                    square += roll;
-                    Console.WriteLine(" and moves to square {0}", square);
-                    if (square == 100) return 100;
-                    int next = square;
-                    if (snl.ContainsKey(square))
-                    {
-                        next = snl[square];
-                    }
-                    if (square < next)
-                    {
-                        Console.WriteLine("Yay! Landed on a ladder. Climb up to {0}.", next);
-                        if (next == 100) return 100;
-                        square = next;
-                    }
-                    else if (square > next)
-                    {
-                        Console.WriteLine("Oops! Landed on a snake. Slither down to {0}.", next);
-                    }
-                }
-                if (roll < 6 || !sixesThrowAgain) return square;
-                Console.WriteLine("Rolled a 6 so roll again.");
             }
         }
 
-        static void Main(string[] args)
-        {
-            // three players atarting on square one
-            int[] players = { 1, 1, 1 };
-            while (true)
-            {
-                for (int i = 0; i < players.Length; i++)
-                {
-                    int ns = Turn(i + 1, players[i]);
-                    if (ns == 100)
-                    {
-                        Console.WriteLine("Player {0} wins!", i + 1);
-                        return;
-                    }
-                    players[i] = ns;
-                    Console.WriteLine();
-                    Console.Read();
-                }
-            }
-        }
+        // We reach here when 'qe' has last vertex
+        // return the distance of vertex in 'qe'
+        return qe.dist;
+    }
+
+    // Driver code
+    public static void Main(String[] args)
+    {
+        // Let us construct the board
+        // given in above diagram
+        int N = 100;
+        int[] moves = new int[N];
+        for (int i = 0; i < N; i++)
+            moves[i] = -1;
+
+        // Ladders
+        moves[4] = 7;
+        moves[10] = 25;
+        moves[19] = 28;
+        moves[25] = 21;
+        moves[36] = 38;
+        moves[76] = 59;
+        moves[89] = 92;
+
+        // Snakes
+        moves[86] = 7;
+        moves[72] = 5;
+        moves[52] = 2;
+        moves[26] = 0;
+        moves[20] = 8;
+        moves[16] = 3;
+        
+
+        Console.WriteLine("Min Dice throws required is " +
+                        getMinDiceThrows(moves, N));
+        Console.Read();
     }
 }
